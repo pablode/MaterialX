@@ -1393,6 +1393,96 @@ void Document::upgradeVersion()
         minorVersion = 38;
     }
 
+    // Upgrade from 1.38 to 1.39
+    if (majorVersion == 1 && minorVersion <= 38)
+    {
+        const char* NORMALMAP_CATEGORY = "normalmap";
+        const char* NORMAL_INPUT = "normal";
+        const char* TANGENT_INPUT = "tangent";
+        const char* BITANGENT_INPUT = "bitangent";
+        const char* TYPE_VECTOR3 = "vector3";
+
+        // In case tangents have been set explictly, we need to restore the old
+        // behavior by explicitly assigning the bitangent (instead of using BWorld).
+        for (ElementPtr elem : traverseTree())
+        {
+            NodePtr node = elem->asA<Node>();
+            if (!node)
+            {
+                continue;
+            }
+
+            const string& nodeCategory = node->getCategory();
+            if (nodeCategory != NORMALMAP_CATEGORY)
+            {
+                continue;
+            }
+
+            InputPtr tangentInput = node->getInput(TANGENT_INPUT);
+            if (!tangentInput)
+            {
+                continue;
+            }
+
+            GraphElementPtr parent = node->getParent()->asA<GraphElement>();
+
+            auto copyInputAttrs = [](InputPtr orig, InputPtr copy) {
+                if (orig->hasValueString())
+                {
+                    copy->setValueString(orig->getValueString());
+                }
+                if (orig->hasNodeGraphString())
+                {
+                    copy->setNodeGraphString(orig->getNodeGraphString());
+                }
+                if (orig->hasNodeName())
+                {
+                    copy->setNodeName(orig->getNodeName());
+                }
+                if (orig->hasOutputString())
+                {
+                    copy->setOutputString(orig->getOutputString());
+                }
+                if (orig->hasChannels())
+                {
+                    copy->setChannels(orig->getChannels());
+                }
+            };
+
+            InputPtr normalInput = node->getInput(NORMAL_INPUT);
+
+            // The tangent input was set; inject nodes for bitangent calculation.
+            NodePtr crossproductNode = parent->addNode("crossproduct", EMPTY_STRING, TYPE_VECTOR3);
+            {
+                InputPtr in1Input = crossproductNode->addInput("in1", TYPE_VECTOR3);
+                InputPtr in2Input = crossproductNode->addInput("in2", TYPE_VECTOR3);
+
+                if (normalInput)
+                {
+                    copyInputAttrs(normalInput, in1Input);
+                }
+                else
+                {
+                    in1Input->setDefaultGeomPropString("Nworld");
+                }
+
+                copyInputAttrs(tangentInput, in2Input);
+            }
+
+            NodePtr normalizeNode = parent->addNode("normalize", EMPTY_STRING, TYPE_VECTOR3);
+            {
+                InputPtr input = crossproductNode->addInput("in", TYPE_VECTOR3);
+
+                input->setNodeName(crossproductNode->getName());
+            }
+
+            InputPtr bitangentInput = node->addInput(BITANGENT_INPUT, TYPE_VECTOR3);
+            bitangentInput->setNodeName(normalizeNode->getName());
+        }
+
+        minorVersion = 39;
+    }
+
     std::pair<int, int> upgradedVersion(majorVersion, minorVersion);
     if (upgradedVersion == expectedVersion)
     {
