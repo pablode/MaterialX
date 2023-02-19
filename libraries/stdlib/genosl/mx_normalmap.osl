@@ -1,17 +1,11 @@
-void mx_normalmap(vector value, string map_space, float normal_scale, vector N, vector U, output vector result)
+void mx_normalmap(vector value, string map_space, float normal_scale, vector N, vector T, vector B, output vector result)
 {
-    // Tangent space
+    vector n = value * 2.0 - 1.0;
+
     if (map_space == "tangent")
     {
-        vector v = value * 2.0 - 1.0;
-        vector T = normalize(U - dot(U, N) * N);
-        vector B = normalize(cross(N, T));
-        result = normalize(T * v[0] * normal_scale + B * v[1] * normal_scale + N * v[2]);
+        n = T * n[0] * normal_scale + B * n[1] * normal_scale + N * n[2];
     }
-    // Object space
-    else
-    {
-        vector n = value * 2.0 - 1.0;
-        result = normalize(n);
-    }
+
+    result = normalize(n);
 }
