@@ -896,7 +896,7 @@ void Document::upgradeVersion()
     }
 
     // Upgrade from 1.37 to 1.38
-    if (majorVersion == 1 && minorVersion >= 37)
+    if (majorVersion == 1 && minorVersion <= 37)
     {
         // Convert color2 types to vector2
         const StringMap COLOR2_CHANNEL_MAP = { { "r", "x" }, { "a", "y" } };
