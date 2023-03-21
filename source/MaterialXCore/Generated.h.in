@@ -18,7 +18,10 @@ namespace @MATERIALX_NAMESPACE@
 }
 
 // Establish alias to allow downstream clients to still use the MaterialX namespace:
-namespace MaterialX = @MATERIALX_NAMESPACE@;
+namespace MaterialX
+{
+  using namespace @MATERIALX_NAMESPACE@;
+}
 
 // All code in this project must use these macros for opening and closing the
 // global MaterialX namespace:
