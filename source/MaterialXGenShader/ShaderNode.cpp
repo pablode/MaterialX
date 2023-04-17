@@ -8,6 +8,7 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
+#include <cassert>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -603,6 +604,12 @@ ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
     _outputOrder.push_back(output.get());
 
     return output.get();
+}
+
+const ShaderNodeImpl& ShaderNode::getImplementation() const
+{
+    assert(_impl);
+    return *_impl;
 }
 
 MATERIALX_NAMESPACE_END

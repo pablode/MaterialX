@@ -463,10 +463,7 @@ class MX_GENSHADER_API ShaderNode
     }
 
     /// Return the implementation used for this node.
-    const ShaderNodeImpl& getImplementation() const
-    {
-        return *_impl;
-    }
+    const ShaderNodeImpl& getImplementation() const;
 
     /// Return the scope info for this node.
     ScopeInfo& getScopeInfo()
