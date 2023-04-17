@@ -15,13 +15,11 @@ MATERIALX_NAMESPACE_BEGIN
 /// Compound node implementation
 class MX_GENMDL_API SwizzleNodeMdl : public SwizzleNode
 {
-    using Base = SwizzleNode;
-
   public:
     static ShaderNodeImplPtr create();
 
   protected:
-    string getVariableName(const ShaderInput* input) const final;
+    string getVariableName(const ShaderInput* input) const override;
 };
 
 MATERIALX_NAMESPACE_END
